@@ -1,0 +1,13 @@
+javap -c 反汇编.class
+
+arthas
+jad xxx.xxx.xxxclass  反编译线上class
+修改线上内存值
+
+idea plugin jclasslib
+
+
+联合索引-最左前缀法则
+(a , b ,c) 联合索引，使用时 a = 1 and b = 22 走索引； b = 22 and c =33 不走 ; c = 33 不走; a=1 走
+
+mysql学习路线图
