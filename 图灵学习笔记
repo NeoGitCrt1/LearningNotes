@@ -9,3 +9,26 @@ jvm 双亲委派
 3.自定义类加载器
 
 当新加载一个class时：3 向上 请求2 是否可以加载（2 如果无法加载 ，向上请求1， 1请求0），最终0也无法加载时，委托3加载
+
+
+打破双亲委派
+不可加载java.lang等核心package ：沙箱安全
+
+类大小
+A1[对象头(8字节)] + A2[Kclass pointer(8字节) 指向元空间该类的指针（开启压缩后为4字节）] + (A3[数组长度 4字节] 只有数组有) + B[实例数据 对象成员变量为指针(4B (不开启压缩8B)] + C[对齐填充（ 保证 (A+B+C) % 8 =0）]
+计算工具:JOL
+
+
+jps 查java进程pid
+jmap -heap pid 看堆信息
+jmap -histo pid 看对象信息
+jmap -dump:format=b file=xxx.xx pid 导出堆dump 用jvisualvm看
+
+-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/xxcc/ccc
+
+jstack pid  看thread
+
+top -p pid
+按H 找线程ID->pid  在jastack里是nid
+
+jstat -gc pid X(监视间隔ms) Y（监视次数）
