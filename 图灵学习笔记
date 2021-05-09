@@ -18,6 +18,7 @@ jvm 双亲委派
 A1[对象头(8字节)] + A2[Kclass pointer(8字节) 指向元空间该类的指针（开启压缩后为4字节）] + (A3[数组长度 4字节] 只有数组有) + B[实例数据 对象成员变量为指针(4B (不开启压缩8B)] + C[对齐填充（ 保证 (A+B+C) % 8 =0）]
 计算工具:JOL
 
+ 
 
 jps 查java进程pid
 jmap -heap pid 看堆信息
@@ -32,3 +33,13 @@ top -p pid
 按H 找线程ID->pid  在jastack里是nid
 
 jstat -gc pid X(监视间隔ms) Y（监视次数）
+查看ygc和ogc频率 根据分配的堆大小估算每秒进入eden的数据量，每秒进老年代的数据量
+jvisualvm 内存抽样 查看大对象，找到业务代码里大对象的持有类
+jvisualvm cpu抽样 查看cpu占用
+
+元空间会触发full gc
+动态年龄判断机制
+老年代担保机制
+大对象直接进入老年代机制
+
+CMS 并行清理，有浮动垃圾；有参数可以清理后整理
