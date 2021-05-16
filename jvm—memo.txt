@@ -11,3 +11,4 @@ idea plugin jclasslib
 (a , b ,c) 联合索引，使用时 a = 1 and b = 22 走索引； b = 22 and c =33 不走 ; c = 33 不走; a=1 走
 
 mysql学习路线图
+

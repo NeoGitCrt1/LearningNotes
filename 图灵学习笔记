@@ -43,3 +43,30 @@ jvisualvm cpu抽样 查看cpu占用
 大对象直接进入老年代机制
 
 CMS 并行清理，有浮动垃圾；有参数可以清理后整理
+
+
+CAS ABA问题 对策:AtomicStampedReference
+
+jdk7 hashTable 多线程扩容：链表成环问题：头插法
+jdk8 hashmap 链表转红黑树机制，链表长度 > 8 (根据泊松分布得出长度为8的概率为0.00000006)&& 容量>=64才转；扩容算法思想可用于分库分表
+
+总线风暴：滥用volatile
+
+
+有@Configureation注解的类会被cglib添加动态代理，从而在@Bean方法被调用时优先根据方法名返回BeanMap里的Bean
+
+mybatis注册mapper动态代理：把扫描到的mapper接口注册成factoryBean，从而在getObject的时候生成动态代理
+
+redis encoding 的内存优化
+embstr  redisObject 16byte + sdshdr8 [4byte(len+free+flag+'\0') + str 44byte] = 64 byte CPU L3一个缓存行 CPU一次读取可以拿到全部数据
+int     redisObject  *ptr直接存储64位以内的数据
+raw
+
+setbit 连续登录统计
+  login_day05  0 1 0 1 ..... 
+& login_day06  0 1 1 1 .....  -> BITOP and login_day0506  login_day05  login_day06
+-------------------------------
+               0 1 0 1       -> bitcount login_day0506
+
+
+zk 非公平锁 ， 解锁后所有等待加锁的cli会同时请求加锁， ->惊群效应
