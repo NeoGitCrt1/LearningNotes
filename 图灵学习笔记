@@ -70,3 +70,18 @@ setbit 连续登录统计
 
 
 zk 非公平锁 ， 解锁后所有等待加锁的cli会同时请求加锁， ->惊群效应
+
+rocketMq 消费者过滤消息：过滤规则上推至broker端，在发送消费者之前就做了过滤
+
+mmap 文件映射 
+
+mq丢数据的关键点 : 1. 生产者-> MQ  2. Master->Slave 3. Master->消费者 4. fsync 
+RocketMq 1. 事务消息 2. 同步刷盘, 同步复制/ Dledger 两阶段同步 3. 
+消费者挂了以后怎么处理积压消息： 如果topic队列比较多，增加消费者。如果队列少，新建一个topic, 加倍队列数量，从旧topic搬运消息到新topic
+
+mongo 走索引 COLLSCAN（全表扫描） < FETCH（load索引） < PROJECT_COVER（使用内存中的索引）
+自动删除文档： 对日期类型字段创建expireAfterSeconds索引 （复合索引不生效; 数组取最小）
+
+protobuf -> protostuff
+
+es 集群搭建：启动之前删除...../es-7.1.xxxx/data/nodes文件夹

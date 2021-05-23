@@ -1,0 +1,93 @@
+1. BIO / NIO / AIO
+- BIO ：阻塞。面向流。Stream是单向。结构简单，便于开发，并发性能差。 扩展：伪异步IO，将请求交由其他线程处理。
+- NIO ：同步非阻塞。面向缓冲区。channel是双向。操作系统底层多路复用器提供I/O请求事件发布，应用程序处理I/O请求事件
+- AIO ：异步非阻塞
+
+2. NIO的组成
+Buffer(DirectByteBuffer) ---读写---> Channel  --->  Selector  ---事件唤醒---> Channel * n
+
+```java
+interface ChannelHandler{
+      void channelReadable(Channel channel);
+      void channelWritable(Channel channel);
+   }
+   class Channel{
+     Socket socket;
+     Event event;//读，写或者连接
+   }
+
+   //IO线程主循环:
+   class IoThread extends Thread{
+   public void run(){
+   Channel channel;
+   while(channel=Selector.select()){//选择就绪的事件和对应的连接
+      if(channel.event==accept){
+         registerNewChannelHandler(channel);//如果是新连接，则注册一个新的读写处理器
+      }
+      if(channel.event==write){
+         getChannelHandler(channel).channelWritable(channel);//如果可以写，则执行写事件
+      }
+      if(channel.event==read){
+          getChannelHandler(channel).channelReadable(channel);//如果可以读，则执行读事件
+      }
+    }
+   }
+   Map<Channel，ChannelHandler> handlerMap;//所有channel的对应事件处理器
+  }
+```
+3. Netty
+网络应用程序框架。高性能基础通信组件。
+- 使用简单：封装NIO，提供更加友好的API
+- 功能强大：预置了多种编解码功能,支持多种主流协议，Core核心可扩展事件模型、通用通信API、支持零拷贝的ByteBuf缓冲对象, 预置IdleStateHandler实现心跳检测
+- 性能高:  
+同步非阻塞.  单线程处理i/o事件，多线程处理响应请求
+内存零拷贝+内存池设计。 使用直接内存收发数据减少一次系统空间到用户空间拷贝操作，使用内存池管理直接内存，减少申请直接内存的开销。
+串行化处理读写。每个channel有单独的pipline处理I/O事件，并发无锁
+- 回避了 linux epoll 空轮询bug
+- 主从Reactors模型
+![image.png](https://upload-images.jianshu.io/upload_images/26104743-89c6131463ab3b52.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+
+4. Netty 重要组件
+- Bootstrap/ServerBootstrap: 配置和启动netty的引导类
+- Channel  : Netty 网络操作抽象类，包括基本的 I/O 操作，如 bind、 connect、read、write 等。
+- EventLoop：监听selector, 转发事件
+- ChannelFuture ：异步I/O 操作结果容器
+- ChannelHandler: 通过携带的ChannelHandlerContext处理事件
+常用子类
+ChannelInboundHandler用于处理入站I / O事件
+ChannelOutboundHandler用于处理出站I / O操作
+常用适配器类
+ChannelInboundHandlerAdapter用于处理入站I / O事件
+ChannelOutboundHandlerAdapter用于处理出站I / O操作
+ChannelDuplexHandler用于处理入站和出站事件
+*通过fireXXX方法在ChannelPipeline内传播事件
+- ChannelPipeline : 责任链模式。ChannelHandler的双向链表。入站(read)事件head-->tail传播，出站(write)事件tail-->head传播
+
+5. io.netty.buffer.ByteBuf
+支持自动扩容, 4M以内成倍扩容，到4M后+4M扩容
+分离读写索引
+PooledByteBuf采用二叉树来实现一个内存池，集中管理内存的 分配和释放，不用每次使用都新建一个缓冲区对象
+UnpooledHeapByteBuf每次都会新建一个缓冲区对象。
+
+6. TCP 拆包粘包 成因及对策
+成因:
+TCP是流协议，传送无界二进制流。在传输层会依据TCP缓冲区的实际情况进行数据包的划分。可能造成上层协议的数据在业务上的不连续。
+![image.png](https://upload-images.jianshu.io/upload_images/26104743-b0f2cb1e02d1d734.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+对策：
+1）消息定长
+2）特殊分隔符结束消息
+3）消息头固定4位消息长度+消息体
+Netty提供的解码器
+LineBasedFrameDecoder （回车换行分包）
+DelimiterBasedFrameDecoder（特殊分隔符分包）
+FixedLengthFrameDecoder（固定长度报文来分包）
+
+7. Netty 线程池容量，启动时机
+core * 2
+bind port时启动
+
+
+
+
+
