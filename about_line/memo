@@ -1,2 +1,15 @@
 https://speakerdeck.com/line_developers/introduction-of-line-live?slide=17
 https://logmi.jp/tech/articles/322240
+
+
+private final ByteBuffer keyByteBuffer = ByteBuffer.allocate(8);
+    
+    private long getKey(byte[] idBytes) {
+        keyByteBuffer.clear();
+        keyByteBuffer.put(idBytes);
+        keyByteBuffer.flip();
+        return keyByteBuffer.getLong();
+    }
+
+
+    make && make install

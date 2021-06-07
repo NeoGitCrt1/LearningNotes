@@ -85,3 +85,34 @@ mongo 走索引 COLLSCAN（全表扫描） < FETCH（load索引） < PROJECT_COV
 protobuf -> protostuff
 
 es 集群搭建：启动之前删除...../es-7.1.xxxx/data/nodes文件夹
+
+-----------------------------
+mysql ： 
+隔离级别：可重复读的间隙锁机制
+间隙锁  锁定的是现有数据的区间
+例  有tablexxx
+id   name  value
+1    a     1000
+2    b     2000
+3    c     3000
+10   d     10000
+20   e     20000
+则间隙锁的区间为(3,10],(10,20],[20,)
+那么
+clientA的transaction执行
+update tablexxx set value =66 where id > 8 and id < 18
+那么被锁定的行为(3,20]内的所有行
+此时clientB的transaction在insert into tablexxx values(19 , f, 666)时会被阻塞
+insert into tablexxx values(21 , f, 666)会成功
+
+clientA  ： update tablexxx set value =66 where id > 8 and id < 25
+锁定(3,)
+则iclientB：insert into tablexxx values(21 , f, 666)会阻塞，
+
+行锁+间隙锁=临键锁
+-----------------------------
+select * from tablexxx where id=1 for update;
+可以锁住该行，
+其他session的事务修改该行会阻塞
+-----------------------------
+where条件是无索引字段时，会升级为表锁

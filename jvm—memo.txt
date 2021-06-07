@@ -12,3 +12,4 @@ idea plugin jclasslib
 
 mysql学习路线图
 
+zk 顺序一致性
