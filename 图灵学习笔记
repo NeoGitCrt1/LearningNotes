@@ -116,3 +116,89 @@ select * from tablexxx where id=1 for update;
 其他session的事务修改该行会阻塞
 -----------------------------
 where条件是无索引字段时，会升级为表锁
+
+repeatable-read mvcc（多版本并发控制）
+undo日志版本链，
+事务开启时readview会固定为begin后第一次query时已提交事务的最终table结果直到此session事务结束
+因以上readview固定机制，不同的session的事务在同一时刻同一query可能查到不同的结果
+
+es会对数据模型内的obj做扁平化处理。
+{
+  name: "aaa",
+  addr: [
+    {p: "a", c:"aa"},
+    {p: "b", c:"bb" }
+  ]
+}
+
+GET /xxindex/_search
+{
+  query :{
+    bool :{
+      must: [
+        match : {
+          addr.p : "a"
+        },
+        match : {
+          addr.c : "bb"
+        },
+        
+      ]
+    }
+  }
+}
+则会查出该数据。明显不符合预想的逻辑
+
+原因 存储时: addr.p: ["a","b"] addr.c: ["aa", "bb"]
+对策 使用nested object 防止以上处理
+建立索引时
+attr :{
+  type: "nested"
+}
+
+GET /xxindex/_search
+{
+  query :{
+    bool :{
+      must: [
+        {
+          nested: {
+            path : "addr",
+            query :{
+              bool :{
+                must: [
+                  match : {
+                    addr.p : "a"
+                  },
+                  match : {
+                    addr.c : "bb"
+                  },
+                  
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+} 
+
+秒杀扣库存
+1. 下单 扣redis
+2. 支付 扣mysql秒杀库存表
+3. 扣实际库存表
+
+
+avatar 字符串表达式计算引擎
+tes4j 开源ocr
+防御机器学习手写识别验证码，在内容里加一个贯穿的粗线
+Happy-Captcha
+
+
+vscode 
+   "go.toolsEnvVars": {
+        
+        "GOPROXY": "https://goproxy.cn,direct",
+        "GONOPROXY": "none;",
+    }

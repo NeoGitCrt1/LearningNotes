@@ -13,3 +13,7 @@ private final ByteBuffer keyByteBuffer = ByteBuffer.allocate(8);
 
 
     make && make install
+
+
+/home/opc/data/www/
+    vi ~/openresty/conf/nginx.conf
